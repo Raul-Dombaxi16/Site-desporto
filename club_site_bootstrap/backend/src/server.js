@@ -1,0 +1,8 @@
+require('dotenv').config();const express=require('express'),session=require('express-session'),MySQLStore=require('express-mysql-session')(session),helmet=require('helmet'),path=require('path'),db=require('./db');const app=express();
+app.disable('x-powered-by');app.use(helmet({crossOriginResourcePolicy:{policy:'cross-origin'}}));app.use(express.json({limit:'1mb'}));app.use(express.urlencoded({extended:false}));
+const sessionStore=new MySQLStore({host:process.env.DB_HOST,port:Number(process.env.DB_PORT||3306),user:process.env.DB_USER,password:process.env.DB_PASSWORD,database:process.env.DB_NAME,createDatabaseTable:true,clearExpired:true,checkExpirationInterval:15*60*1000,expiration:8*60*60*1000});
+app.use(session({name:'club.sid',secret:process.env.SESSION_SECRET||'unsafe-development-secret-change-me',store:sessionStore,resave:false,saveUninitialized:false,cookie:{httpOnly:true,sameSite:'lax',secure:process.env.NODE_ENV==='production',maxAge:8*60*60*1000}}));
+app.use('/uploads',express.static(path.join(__dirname,'../uploads')));app.use('/api/auth',require('./routes/auth'));app.use('/api/public',require('./routes/public'));app.use('/api/admin',require('./routes/admin'));
+app.use(express.static(path.join(__dirname,'../../')));app.get('/admin',(req,res)=>res.sendFile(path.join(__dirname,'../../admin/index.html')));
+app.use((err,req,res,next)=>{console.error(err);if(err.code==='LIMIT_FILE_SIZE')return res.status(413).json({error:'Imagem excede 5 MB.'});res.status(500).json({error:'Erro interno. Verifica os logs do servidor.'})});
+const port=Number(process.env.PORT||3000);app.listen(port,()=>console.log(`CD Horizonte ativo em http://localhost:${port}`));

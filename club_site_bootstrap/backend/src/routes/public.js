@@ -1,0 +1,9 @@
+const router=require('express').Router();const db=require('../db');
+router.get('/matches',async(req,res)=>{const [r]=await db.execute('SELECT * FROM matches ORDER BY match_date DESC');res.json(r)});
+router.get('/gallery',async(req,res)=>{const [r]=await db.execute('SELECT * FROM gallery ORDER BY display_order,id DESC');res.json(r)});
+router.get('/players',async(req,res)=>{const [r]=await db.execute('SELECT id,full_name,position,shirt_number,photo_path,bio FROM players WHERE active=1 ORDER BY shirt_number');res.json(r)});
+router.get('/news',async(req,res)=>{const [r]=await db.execute('SELECT id,title,slug,summary,image_path,published_at FROM news WHERE published=1 ORDER BY published_at DESC,id DESC');res.json(r)});
+router.get('/news/:slug',async(req,res)=>{const [r]=await db.execute('SELECT * FROM news WHERE slug=? AND published=1',[req.params.slug]);if(!r.length)return res.status(404).json({error:'Notícia não encontrada.'});res.json(r[0])});
+router.get('/products',async(req,res)=>{const [r]=await db.execute('SELECT id,name,description,price,image_path,stock FROM products WHERE active=1 ORDER BY id DESC');res.json(r)});
+router.post('/memberships',async(req,res)=>{const {full_name,email,phone,message}=req.body;if(!full_name||!email)return res.status(400).json({error:'Nome e email são obrigatórios.'});await db.execute('INSERT INTO memberships(full_name,email,phone,message) VALUES(?,?,?,?)',[full_name,email,phone||null,message||null]);res.status(201).json({ok:true,message:'Inscrição recebida.'})});
+router.post('/contact',async(req,res)=>{const {name,email,subject,message}=req.body;if(!name||!email||!message)return res.status(400).json({error:'Preenche nome, email e mensagem.'});await db.execute('INSERT INTO contact_messages(name,email,subject,message) VALUES(?,?,?,?)',[name,email,subject||null,message]);res.status(201).json({ok:true,message:'Mensagem enviada.'})});module.exports=router;

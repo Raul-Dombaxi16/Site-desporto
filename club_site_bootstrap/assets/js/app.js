@@ -1,0 +1,12 @@
+const players=[
+ {name:'Afonso Manuel',number:9,position:'Avançado',img:'https://images.unsplash.com/photo-1535713875002-d1d0cf377d0a?auto=format&fit=crop&w=600&q=80'},
+ {name:'Mateus Silva',number:10,position:'Médio',img:'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80'},
+ {name:'Dário Costa',number:7,position:'Extremo',img:'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80'},
+ {name:'Rafael Pedro',number:1,position:'Guarda-redes',img:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80'}
+];
+function playerCard(p){return `<div class="col-6 col-lg-3"><article class="player-card"><img src="${p.img}" alt="Retrato de ${p.name}" loading="lazy"><div class="player-info"><small>${p.position.toUpperCase()} · Nº ${p.number}</small><h3>${p.name}</h3></div></article></div>`}
+const homePlayers=document.querySelector('#home-players');if(homePlayers)homePlayers.innerHTML=players.map(playerCard).join('');
+const teamGrid=document.querySelector('#team-grid');if(teamGrid){const search=document.querySelector('#player-search');const filter=()=>{const q=search.value.toLowerCase();teamGrid.innerHTML=players.filter(p=>(p.name+' '+p.position).toLowerCase().includes(q)).map(playerCard).join('')||'<p>Não foram encontrados jogadores.</p>'};search.addEventListener('input',filter);filter();}
+const memberForm=document.querySelector('#member-form');if(memberForm)memberForm.addEventListener('submit',e=>{e.preventDefault();const data=Object.fromEntries(new FormData(memberForm));const list=JSON.parse(localStorage.getItem('cdh-members')||'[]');list.push({...data,createdAt:new Date().toISOString()});localStorage.setItem('cdh-members',JSON.stringify(list));document.querySelector('#form-feedback').innerHTML='<div class="alert alert-success">Pedido registado neste navegador (demonstração). Para inscrições reais, ligar a um backend seguro.</div>';memberForm.reset();});
+const contactForm=document.querySelector('#contact-form');if(contactForm)contactForm.addEventListener('submit',e=>{e.preventDefault();document.querySelector('#contact-feedback').innerHTML='<div class="alert alert-success">Mensagem validada localmente. Configure um servidor para envio real.</div>';contactForm.reset();});
+const year=document.querySelector('[data-year]');if(year)year.textContent=new Date().getFullYear();
